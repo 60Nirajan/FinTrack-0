@@ -47,9 +47,9 @@ class UserAdmin(admin.ModelAdmin):
 class UserAdmin(admin.ModelAdmin):
     list_display = ['category_name', 'income_list']
     
-    def income_list(self, income_category):
-        url = reverse('admin:core_income_changelist')+ '?' + urlencode({'incomecategory__id': str(income_category.id)})
-        return format_html('<a href = "{}">{}</a>', url, income_category.income_list) #display with link 
+    def income_list(self, incomecategory):
+        url = reverse('admin:core_income_changelist')+ '?' + urlencode({'income_category__id': str(incomecategory.id)})
+        return format_html('<a href = "{}">{}</a>', url, incomecategory.income_list) #display with link 
     
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
@@ -70,7 +70,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ['category_name', 'category_list']
 
     def category_list(self, expense_category):
-        url = reverse('admin:core_expense_changelist')+ '?' + urlencode({'expensecategory__id': str(expense_category.id)})
+        url = reverse('admin:core_expense_changelist')+ '?' + urlencode({'expense_category__id': str(expense_category.id)})
         return format_html('<a href = "{}">{}</a>', url, expense_category.category_list) #display with link 
     
     def get_queryset(self, request):
@@ -91,7 +91,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ['category_name', 'category_list']
 
     def category_list(self, asset_category):
-        url = reverse('admin:core_asset_changelist')+ '?' + urlencode({'assetcategory__id': str(asset_category.id)})
+        url = reverse('admin:core_asset_changelist')+ '?' + urlencode({'asset_category__id': str(asset_category.id)})
         return format_html('<a href = "{}">{}</a>', url, asset_category.category_list) #display with link 
     
     def get_queryset(self, request):
@@ -113,7 +113,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ['category_name', 'category_list']
 
     def category_list(self, liability_category):
-        url = reverse('admin:core_liability_changelist')+ '?' + urlencode({'liabilitycategory__id': str(liability_category.id)})
+        url = reverse('admin:core_liability_changelist')+ '?' + urlencode({'liability_category__id': str(liability_category.id)})
         return format_html('<a href = "{}">{}</a>', url, liability_category.category_list) #display with link 
     
     def get_queryset(self, request):
