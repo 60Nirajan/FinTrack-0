@@ -6,11 +6,11 @@ from . import models
 from django.urls import reverse
 from django.utils.html import urlencode, format_html
 from django.db.models.aggregates import Count
-
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # Register your models here.
 @admin.register(models.User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(BaseUserAdmin):
     list_display = ['username', 'income_list','expense_list', 'asset_list', 'liability_list', 'target_list']
 
     def income_list(self, user):

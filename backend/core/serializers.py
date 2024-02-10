@@ -1,16 +1,81 @@
 from rest_framework import serializers
+from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer, UserSerializer as BaseUserSerializer
 
-from . models import User
+from . models import IncomeCategory, Income,Expense,Asset,Liability,ExpenseCategory,AssetCategory,LiabilityCategory
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(BaseUserCreateSerializer):
+    class Meta(BaseUserCreateSerializer.Meta):
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name','phone_no']
+
+
+
+class UserSerializer(BaseUserSerializer):
+    class Meta(BaseUserSerializer.Meta):
+        fields = ['id', 'username', 'email', 'first_name', 'last_name','phone_no']
+
+
+
+class IncomeCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'phone_no']
+        model = IncomeCategory
+        fields = ['id', 'category_name']
 
 
-class UserLoginSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=255)
+
+class IncomeSerializer(serializers.ModelSerializer):
+    user_id = user_id = serializers.IntegerField()
+    income_category_id = serializers.IntegerField()
     class Meta:
-        model = User
-        fields = ['username','password']
+        model = Income
+        fields = ['id', 'income_note', 'income_amount', 'income_date', 'user_id', 'income_category_id']
+
+
+
+class ExpenseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpenseCategory
+        fields = ['id', 'category_name']
+
+
+
+class ExpenseSerializer(serializers.ModelSerializer):
+    user_id = user_id = serializers.IntegerField()
+    expense_category_id = serializers.IntegerField()
+    class Meta:
+        model = Income
+        fields = ['id', 'expense_note', 'expense_amount', 'expense_date', 'user_id', 'expense_category_id']
+
+
+
+class AssetCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssetCategory
+        fields = ['id', 'category_name']
+
+
+
+class AssetSerializer(serializers.ModelSerializer):
+    user_id = user_id = serializers.IntegerField()
+    asset_category_id = serializers.IntegerField()
+    class Meta:
+        model = Asset
+        fields = ['id', 'asset_note', 'asset_amount', 'asset_date', 'user_id', 'asset_category_id']
+
+
+
+class LiabilityCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LiabilityCategory
+        fields = ['id', 'category_name']
+
+
+
+class LiabilitySerializer(serializers.ModelSerializer):
+    user_id = user_id = serializers.IntegerField()
+    liability_category_id = serializers.IntegerField()
+    class Meta:
+        model = Liability
+        fields = ['id', 'liability_note', 'liability_amount', 'liability_date', 'user_id', 'liability_category_id']
+
+

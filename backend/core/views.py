@@ -6,55 +6,193 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from django.contrib.auth import authenticate
 from django.shortcuts import render, get_object_or_404
 
-from . models import User
-from . serializers import UserCreateSerializer, UserLoginSerializer
+from . models import Income, IncomeCategory, Expense, ExpenseCategory, Asset, AssetCategory, Liability, LiabilityCategory
+from . serializers import IncomeCategorySerializer, IncomeSerializer,ExpenseSerializer,AssetSerializer, LiabilitySerializer, ExpenseCategorySerializer, AssetCategorySerializer, LiabilityCategorySerializer
 
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
+class IncomeCategoryView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
 
-
-class UserRegistrationView(CreateAPIView):
+    def get_queryset(self):
+        return IncomeCategory.objects.all()
     
     def get_serializer_class(self):
-        return UserCreateSerializer
+        return IncomeCategorySerializer
 
-    def post(self, request, format=None):
-        serializer = UserCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        token = get_tokens_for_user(user)
-        return Response({'token':token}, status=status.HTTP_201_CREATED)
+
+
+class IncomeCategoryDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return IncomeCategory.objects.filter(id=pk)
+    
+    def get_serializer_class(self):
+        return IncomeCategorySerializer
+
+
+
+class IncomeView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Income.objects.filter(user_id=self.request.user.id)
+    
+    def get_serializer_class(self):
+        return IncomeSerializer
     
 
-class UserLoginView(CreateAPIView):
- 
-  def get_serializer_class(self):
-      return UserLoginSerializer
 
-  def post(self, request, format=None):
-    serializer = UserLoginSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    username = serializer.data.get('username')
-    password = serializer.data.get('password')
+class IncomeDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
 
-    print(username, password)
-
-    user = authenticate(username=username, password=password)
-
-    print(user, "hello")
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Income.objects.filter(user_id=self.request.user.id).filter(id=pk)
     
-    if user is not None:
-        token = get_tokens_for_user(user)
-        return Response({'token':token}, status=status.HTTP_200_OK)
-    else:
-        Response({'errors':{'non_field_errors':['Email or Password is not Valid']}}, status=status.HTTP_404_NOT_FOUND)
+    def get_serializer_class(self):
+        return IncomeSerializer
+    
+#######
+
+class ExpenseCategoryView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return ExpenseCategory.objects.all()
+    
+    def get_serializer_class(self):
+        return ExpenseCategorySerializer
+
+
+
+class ExpenseCategoryDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return ExpenseCategory.objects.filter(id=pk)
+    
+    def get_serializer_class(self):
+        return ExpenseCategorySerializer
+
+
+
+class ExpenseView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Expense.objects.filter(user_id=self.request.user.id)
+    
+    def get_serializer_class(self):
+        return ExpenseSerializer
+    
+
+
+class ExpenseDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Expense.objects.filter(user_id=self.request.user.id).filter(id=pk)
+    
+    def get_serializer_class(self):
+        return ExpenseSerializer
+    
+#######
+
+class AssetCategoryView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return AssetCategory.objects.all()
+    
+    def get_serializer_class(self):
+        return AssetCategorySerializer
+
+
+
+class AssetCategoryDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return AssetCategory.objects.filter(id=pk)
+    
+    def get_serializer_class(self):
+        return AssetCategorySerializer
+
+
+
+class AssetView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Asset.objects.filter(user_id=self.request.user.id)
+    
+    def get_serializer_class(self):
+        return AssetSerializer
+    
+
+
+class AssetDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Asset.objects.filter(user_id=self.request.user.id).filter(id=pk)
+    
+    def get_serializer_class(self):
+        return AssetSerializer
+    
+#######
+
+class LiabilityCategoryView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return LiabilityCategory.objects.all()
+    
+    def get_serializer_class(self):
+        return LiabilityCategorySerializer
+
+
+
+class LiabilityCategoryDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return LiabilityCategory.objects.filter(id=pk)
+    
+    def get_serializer_class(self):
+        return LiabilityCategorySerializer
+
+
+
+class LiabilityView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Liability.objects.filter(user_id=self.request.user.id)
+    
+    def get_serializer_class(self):
+        return LiabilitySerializer
+    
+
+
+class LiabilityDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Liability.objects.filter(user_id=self.request.user.id).filter(id=pk)
+    
+    def get_serializer_class(self):
+        return LiabilitySerializer
