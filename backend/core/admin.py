@@ -60,6 +60,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.Income)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['user', 'income_note', 'income_amount', 'income_date']
+    list_filter = ['user', 'income_category']
 
     def user(self, obj):
         return obj.user.username if obj.user else ''
@@ -82,6 +83,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.Expense)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['user', 'expense_note', 'expense_amount', 'expense_date']
+    list_filter = ['user', 'expense_category']
 
     def user(self, obj):
         return obj.user.username if obj.user else ''
@@ -103,6 +105,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.Asset)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['user', 'asset_note', 'asset_amount', 'asset_date']
+    list_filter = ['user', 'asset_category']
 
     def user(self, obj):
         return obj.user.username if obj.user else ''
@@ -125,6 +128,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.Liability)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['user', 'liability_note', 'liability_amount', 'liability_date']
+    list_filter = ['user', 'liability_category']
 
     def user(self, obj):
         return obj.user.username if obj.user else ''
@@ -133,6 +137,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.Target)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['user', 'target_name', 'target_set_date', 'target_completion_date', 'target_status', 'added_amount_list']
+    list_filter = ['user']
 
     def added_amount_list(self, target):
         url = reverse('admin:core_addedamount_changelist')+ '?' + urlencode({'target__id': str(target.id)})
@@ -150,6 +155,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.AddedAmount)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['user', 'target', 'added_date', 'added_amount']
+    list_filter = ['target']
 
     def target(self, obj):
         return obj.target.target_name if obj.target else ''
