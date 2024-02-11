@@ -43,7 +43,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
     user_id = user_id = serializers.IntegerField()
     expense_category_id = serializers.IntegerField()
     class Meta:
-        model = Income
+        model = Expense
         fields = ['id', 'expense_note', 'expense_amount', 'expense_date', 'user_id', 'expense_category_id']
 
 
