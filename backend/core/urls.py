@@ -23,4 +23,13 @@ urlpatterns = [
     path('liabilitys/', views.LiabilityView.as_view()),
     path('liabilitys/<int:pk>/', views.LiabilityDetailView.as_view()),
 
+    path('totalincomes/', views.TotalIncomeView.as_view()),
+    path('totalexpenses/', views.TotalExpenseView.as_view()),
+    path('totalliabilitys/', views.TotalLiabilityView.as_view()),
+    path('totalassets/', views.TotalAssetView.as_view()),
+
+    path('balanceamount/', views.BalanceView.as_view()), #income-expense
+
+    path('history/', views.HistoryView.as_view()),
+
 ]
