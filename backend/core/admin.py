@@ -11,7 +11,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # Register your models here.
 @admin.register(models.User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ['username', 'income_list','expense_list', 'asset_list', 'liability_list', 'target_list']
+    list_display = ['username', 'income_list','expense_list', 'asset_list', 'liability_list', 'target_list', 'target_wallet']
 
     def income_list(self, user):
         url = reverse('admin:core_income_changelist')+ '?' + urlencode({'user__id': str(user.id)})
@@ -31,7 +31,10 @@ class UserAdmin(BaseUserAdmin):
     
     def target_list(self, user):
         url = reverse('admin:core_target_changelist')+ '?' + urlencode({'user__id': str(user.id)})
-        return format_html('<a href = "{}">{}</a>', url, user.target_list) #display with link 
+        return format_html('<a href = "{}">{}</a>', url, user.target_list) #display with link
+    
+    def target_wallet(self, obj):
+        return obj.targetwallet.amount if obj.targetwallet else ''
     
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
@@ -136,29 +139,17 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(models.Target)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['user', 'target_name', 'target_set_date', 'target_completion_date', 'target_status', 'added_amount_list']
+    list_display = ['user', 'target_name', 'current_amount', 'target_amount', 'target_add_date', 'target_deadline', 'target_status', 'target_priority']
     list_filter = ['user']
-
-    def added_amount_list(self, target):
-        url = reverse('admin:core_addedamount_changelist')+ '?' + urlencode({'target__id': str(target.id)})
-        return format_html('<a href = "{}">{}</a>', url, target.added_amount_list) #display with link 
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).annotate(
-        added_amount_list = Count('addedamount', distinct=True)
-    )
 
     def user(self, obj):
         return obj.user.username if obj.user else ''
 
 
-@admin.register(models.AddedAmount)
+@admin.register(models.TargetWallet)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['user', 'target', 'added_date', 'added_amount']
-    list_filter = ['target']
-
-    def target(self, obj):
-        return obj.target.target_name if obj.target else ''
+    list_display = ['user', 'amount']
+    list_filter = ['user']
     
     def user(self,obj):
         return obj.target.user.username if obj.target.user else ''

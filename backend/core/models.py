@@ -9,7 +9,7 @@ class User(AbstractUser):
 
 
 class IncomeCategory(models.Model):
-    category_name = models.CharField(max_length  = 255)
+    category_name = models.CharField(max_length  = 255) 
 
     def __str__(self):
         return f'{self.category_name}'
@@ -70,22 +70,28 @@ class Liability(models.Model):
 
 class Target(models.Model):
     target_name = models.CharField(max_length = 255)
-    target_set_date = models.DateTimeField(auto_now = True)
-    target_completion_date = models.DateTimeField(auto_now = False)
+    current_amount = models.FloatField()
+    target_amount = models.FloatField()
+    target_add_date = models.DateTimeField(auto_now = True)
+    target_deadline = models.DateTimeField(auto_now = False)
     completed = 'COMP'
     incomplete = 'INCP'
     target_choices = [(completed, 'completed'),
                       (incomplete, 'incomplete')]
     target_status  = models.CharField(max_length =4, choices = target_choices, default = incomplete)
+    low = 'L'
+    medium = 'M'
+    high = 'H'
+    priority_choices = [(low, 'low'),
+                      (medium, 'medium'),
+                      (high, 'high')]
+    target_priority = models.CharField(max_length = 1, choices = priority_choices)
     user = models.ForeignKey(User, on_delete = models.CASCADE)
 
     def __str__(self):
         return f'{self.target_name}'
 
 
-class AddedAmount(models.Model):
-    added_date = models.DateTimeField(auto_now = True)
-    added_amount = models.DecimalField(max_digits = 14, decimal_places = 2, validators = [MinValueValidator(1)])
-    target = models.ForeignKey(Target, on_delete = models.CASCADE)
-
-
+class TargetWallet(models.Model):
+    amount = models.FloatField()
+    user = models.OneToOneField(User, on_delete = models.CASCADE)
