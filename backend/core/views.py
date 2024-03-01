@@ -3,21 +3,19 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
 
-from django.contrib.auth import authenticate
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.db.models import Sum
-from django.core.serializers import serialize
 
-from datetime import datetime
+from datetime import datetime, date
 
-from . models import Income, IncomeCategory, Expense, ExpenseCategory, Asset,\
-                    AssetCategory, Liability, LiabilityCategory
+from . models import User, Income, IncomeCategory, Expense, ExpenseCategory, Asset,\
+                    AssetCategory, Liability, LiabilityCategory, TargetWallet, Target
 from . serializers import IncomeCategorySerializer, IncomeSerializer,ExpenseSerializer,\
                             AssetSerializer, LiabilitySerializer, ExpenseCategorySerializer,\
-                            AssetCategorySerializer, LiabilityCategorySerializer
+                            AssetCategorySerializer, LiabilityCategorySerializer, \
+                            TargetWalletSerializer, TargetSerializer
 
 #######
 
@@ -41,7 +39,7 @@ class IncomeCategoryDetailView(RetrieveUpdateDestroyAPIView):
     
     def get_serializer_class(self):
         return IncomeCategorySerializer
-
+    
 
 
 class IncomeView(ListCreateAPIView):
@@ -213,6 +211,8 @@ class TotalIncomeView(APIView):
         total_income = Income.objects.filter(user_id=self.request.user.id).aggregate(total_income=Sum('income_amount'))
         return Response(total_income)
     
+
+
 class TotalExpenseView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -227,6 +227,7 @@ class TotalExpenseView(APIView):
         return Response({"total_expense": total_expense['total_expense'], "expense_notification":expense_notification})
     
 
+
 class TotalAssetView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -234,6 +235,7 @@ class TotalAssetView(APIView):
         total_asset = Asset.objects.filter(user_id=self.request.user.id).aggregate(total_asset=Sum('asset_amount'))
         return Response(total_asset)
     
+
 
 class TotalLiabilityView(APIView):
     permission_classes = [IsAuthenticated]
@@ -258,8 +260,6 @@ class BalanceView(APIView):
 class HistoryView(APIView):
     permission_classes = [IsAuthenticated]
 
-    
-
     def get(self, request):
         income_history = Income.objects.filter(user=request.user).values('income_amount', 'income_note', 'income_date')
         expense_history = Expense.objects.filter(user=request.user).values('expense_amount', 'expense_note', 'expense_date')
@@ -271,3 +271,94 @@ class HistoryView(APIView):
                                          x.get('liability_date', 
                                          x.get('asset_date', datetime.min)))), reverse=True)
         return Response(combined_history_sorted)
+    
+########
+    
+class TargetWalletCreateView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return TargetWallet.objects.filter(user_id=self.request.user.id)
+    
+    def get_serializer_class(self):
+        return TargetWalletSerializer
+
+
+
+class TargetWalletDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, index):
+        target_wallet = TargetWallet.objects.get(user_id=request.user.id)
+        if index == "update":
+            target_wallet.amount = request.data['amount']
+        elif index == "add":
+            target_wallet.amount += request.data['amount']
+        target_wallet.save()
+        
+        user = User.objects.get(id=request.user.id)
+        self.function_start(user)
+
+        return Response({"detail":"success update"}, status=status.HTTP_201_CREATED)
+
+    def function_start(self, user):
+        target_wallet_queryset = TargetWallet.objects.get(user_id=user.id)
+        total_wallet = target_wallet_queryset.amount
+        targets = Target.objects.filter(user_id=user.id).filter(target_status='INCP').filter(target_deadline__gt=date.today())
+        
+        total_priority = 0
+        for target in targets:
+            if target.target_priority == "H":
+                total_priority += 0.5
+            elif target.target_priority == "M":
+                total_priority += 0.3
+            else:
+                total_priority += 0.2
+
+        for target in targets:
+            float_target_priority = 0
+            if target.target_priority == "H":
+                float_target_priority = 0.5
+            elif target.target_priority == "M":
+                float_target_priority = 0.3
+            else:
+                float_target_priority = 0.2
+            target_divided_amount = (total_wallet / total_priority) * float_target_priority
+
+            if target.target_amount > target_divided_amount:
+                target.current_amount = target_divided_amount
+                target.save()
+            
+            else:
+                target.current_amount = target.target_amount
+                target.target_status = "COMP"
+                target_wallet_queryset.amount -= target.target_amount
+                target.save()
+                target_wallet_queryset.save()
+                # Recursion
+                self.function_start(user)
+                break
+    
+
+
+class TargetListView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Target.objects.filter(user_id=self.request.user.id)
+    
+    def get_serializer_class(self):
+        return TargetSerializer
+
+
+
+class TargetDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Target.objects.filter(user_id=self.request.user.id).filter(id=pk)
+    
+    def get_serializer_class(self):
+        return TargetSerializer
+    

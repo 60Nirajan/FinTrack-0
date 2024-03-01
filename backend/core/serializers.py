@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer, UserSerializer as BaseUserSerializer
 
-from . models import IncomeCategory, Income,Expense,Asset,Liability,ExpenseCategory,AssetCategory,LiabilityCategory
+from . models import IncomeCategory, Income,Expense,Asset,Liability,ExpenseCategory,AssetCategory,LiabilityCategory, \
+    TargetWallet, Target
 
 
 class UserCreateSerializer(BaseUserCreateSerializer):
@@ -56,7 +57,7 @@ class AssetCategorySerializer(serializers.ModelSerializer):
 
 
 class AssetSerializer(serializers.ModelSerializer):
-    user_id = user_id = serializers.IntegerField()
+    user_id = serializers.IntegerField()
     asset_category_id = serializers.IntegerField()
     class Meta:
         model = Asset
@@ -79,3 +80,15 @@ class LiabilitySerializer(serializers.ModelSerializer):
         fields = ['id', 'liability_note', 'liability_amount', 'liability_date', 'user_id', 'liability_category_id']
 
 
+class TargetWalletSerializer(serializers.ModelSerializer):
+    user_id = user_id = serializers.IntegerField()
+    class Meta:
+        model = TargetWallet
+        fields = ['id', 'amount', 'user_id']
+
+
+class TargetSerializer(serializers.ModelSerializer):
+    user_id = user_id = serializers.IntegerField()
+    class Meta:
+        model = Target
+        fields = ['id', 'target_name', 'current_amount', 'target_amount', 'target_add_date', 'target_deadline', 'target_status', 'target_priority', 'user_id']
